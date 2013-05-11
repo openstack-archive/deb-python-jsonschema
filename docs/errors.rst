@@ -8,13 +8,31 @@ When an invalid instance is encountered, a :exc:`ValidationError` will be
 raised or returned, depending on which method or function is used.
 
 .. autoexception:: ValidationError
-    :members:
+
+    The instance didn't properly validate under the provided schema.
+
+    .. attribute:: message
+
+        A human readable message explaining the error.
+
+    .. attribute:: validator
+
+        The failed validator.
+
+    .. attribute:: path
+
+        A deque containing the path to the offending element (or an empty deque
+        if the error happened globally).
+
 
 In case an invalid schema itself is encountered, a :exc:`SchemaError` is
 raised.
 
 .. autoexception:: SchemaError
-    :members:
+
+    The provided schema is malformed.
+
+    The same attributes are present as for :exc:`ValidationError`\s.
 
 ErrorTrees
 ----------
