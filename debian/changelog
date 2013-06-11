@@ -4,7 +4,7 @@ python-jsonschema (1.1.0-2) unstable; urgency=low
   * Ran wrap-and-sort.
 
   [ Dmitrijs Ledkovs ]
-  * Builds the python3 package.
+  * Builds the python3 package (Closes: #710898).
 
  -- Thomas Goirand <zigo@debian.org>  Thu, 30 May 2013 14:04:07 +0800
 
