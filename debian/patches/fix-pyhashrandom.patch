@@ -1,0 +1,23 @@
+Description: resolve pyhashrandom test suite failure.
+Author: Dmitrijs Ledkovs <dmitrijs.ledkovs@canonical.com>
+Forwarded: no
+Last-Update: 20120-12-06
+
+--- a/tests.py
++++ b/tests.py
+@@ -370,6 +370,15 @@
+         }
+ 
+         errors = self.validator.iter_errors(instance, schema)
++        if sys.version_info > (3, 2):
++            all_errors = [(list(e.path), e.validator) for e in errors]
++            self.assertCountEqual(all_errors,
++                                  [(['baz'], 'enum'),
++                                   (['baz'], 'maximum'),
++                                   (['foo'], 'type'),
++                                   (['bar'], 'minItems')])
++            return
++
+         e1, e2, e3, e4 = sorted_errors(errors)
+ 
+         self.assertEqual(list(e1.path), ["bar"])

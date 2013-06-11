@@ -1,6 +1,10 @@
 python-jsonschema (1.1.0-2) UNRELEASED; urgency=low
 
+  [ Thomas Goirand ]
   * Ran wrap-and-sort.
+
+  [ Dmitrijs Ledkovs ]
+  * Builds the python3 package.
 
  -- Thomas Goirand <zigo@debian.org>  Thu, 30 May 2013 14:04:07 +0800
 
