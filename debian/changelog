@@ -1,3 +1,9 @@
+python-jsonschema (1.1.0-3) UNRELEASE; urgency=low
+
+  * Added Pre-Depends dpkg (>= 1.15.6~) missing for the python3 package.
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 24 Jul 2013 15:11:14 +0800
+
 python-jsonschema (1.1.0-2) unstable; urgency=low
 
   [ Thomas Goirand ]
