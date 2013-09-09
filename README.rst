@@ -49,30 +49,21 @@ Features
 Release Notes
 -------------
 
-``v1.0.0`` is a new major release of ``jsonschema``.
+``v2.0.0`` adds a better interface for creating and extending validators in the
+form of ``jsonschema.validators.create`` and ``jsonschema.validators.extend``.
+The documentation is still a bit lacking in this area but it's getting there.
+See the tests in ``jsonschema.tests.test_validators`` and the source code if
+you'd like to try it out now. ``ValidatorMixin`` has been removed.
 
-It includes two major new features: `support for the newly released draft 4 <https://python-jsonschema.readthedocs.org/en/latest/validate.html#jsonschema.Draft4Validator>`_
-of the specification (thanks to Chase Sterling) and
-`optional support for format
-<https://python-jsonschema.readthedocs.org/en/latest/validate.html#validating-formats>`_
-(thanks to Norman Hooper).
+Practically speaking, this affects validators that subclassed a built-in
+validator and extended a validator function (presumably with an upcall via
+``super``), as the correct way to do so is now to call
+``TheValidator.VALIDATORS["extended_validator_fn"]`` directly in a new
+validator function (and of course to use ``create``). Examples hopefully coming
+soon if more clarification is needed. Patches welcome of course.
 
-It also contains two major backwards incompatible changes: draft 4 is now the
-default for schemas without ``$schema`` specified, and ``ValidationError``\s
-now have ``path`` in sequential order.
-
-It also fixes a minor issue with ``long``\s not being recognized as
-``integer``\s and a number of issues with the support for ``$ref``.
-
-Also, ``ValidatorMixin`` can be used to construct concrete validators for users
-who wish to create their own from scratch.
-
-As always, see `the documentation <http://python-jsonschema.readthedocs.org>`_
-for details.
-
-``v1.1.0`` fixes a bug whereby URIs were not canonicalized when stored and
-looked up (#70) and also allows for registering exceptions that can be accessed
-from ``ValidationError``\s when validating ``format`` properties (#77).
+It also fixes a number of issues with ref resolution, one for array indices
+(#95) and one for improper handling of unknown URI schemes (#102).
 
 
 Running the Test Suite
@@ -88,6 +79,17 @@ run ``jsonschema``'s test suite on all of the versions of Python ``jsonschema``
 supports. Note that you'll need to have all of those versions installed in
 order to run the tests on each of them, otherwise ``tox`` will skip (and fail)
 the tests on that version.
+
+Of course you're also free to just run the tests on a single version with your
+favorite test runner. The tests live in the ``jsonschema.tests`` package.
+
+
+Community
+---------
+
+There's a `mailing list <https://groups.google.com/forum/#!forum/jsonschema>`_ for this implementation on Google Groups.
+
+Please join, and feel free to send questions there.
 
 
 Contributing

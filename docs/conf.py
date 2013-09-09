@@ -2,12 +2,14 @@
 #
 # This file is execfile()d with the current directory set to its containing dir.
 
+from textwrap import dedent
 import sys, os
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath(os.path.pardir))
+ext_paths = [os.path.abspath(os.path.pardir), os.path.dirname(__file__)]
+sys.path = ext_paths + sys.path
 
 # -- General configuration -----------------------------------------------------
 
@@ -18,10 +20,14 @@ sys.path.insert(0, os.path.abspath(os.path.pardir))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
     'sphinx.ext.coverage',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'jsonschema_role',
 ]
+
+cache_path = "_cache"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -56,7 +62,7 @@ version = release.partition("-")[0]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', "_cache", "_static", "_templates"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -67,7 +73,12 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
-doctest_global_setup = "from jsonschema import *"
+doctest_global_setup = dedent("""
+    from __future__ import print_function
+    from jsonschema import *
+""")
+
+intersphinx_mapping = {"python": ("http://docs.python.org/3.2", None)}
 
 
 # -- Options for HTML output ---------------------------------------------------
@@ -103,7 +114,7 @@ html_theme = 'pyramid'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
