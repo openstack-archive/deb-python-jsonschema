@@ -3,6 +3,7 @@ python-jsonschema (2.0.0-1) unstable; urgency=low
   * New upstream release.
   * Added Pre-Depends dpkg (>= 1.15.6~) missing for the python3 package.
   * Removes now obsolete debian/patches folder.
+  * Fixes nosetests calls (removes test.py as arg).
 
  -- Thomas Goirand <zigo@debian.org>  Wed, 24 Jul 2013 15:11:14 +0800
 
