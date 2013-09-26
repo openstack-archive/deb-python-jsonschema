@@ -39,7 +39,7 @@ Description: An(other) implementation of JSON Schema (Draft 3) for Python
 Package: python3-jsonschema
 Architecture: all
 Pre-Depends: dpkg (>= 1.15.6~)
-Depends: ${misc:Depends}, ${python3:Depends}
+Depends: ${misc:Depends}, python3 (>= 3.2.3)
 Description: An(other) implementation of JSON Schema (Draft 3) for Python 3
  JSON Schema is a specification for a JSON-based format for defining
  the structure of JSON data. JSON Schema provides a contract for what
