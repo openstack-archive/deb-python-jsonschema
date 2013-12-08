@@ -5,15 +5,18 @@ Maintainer: PKG OpenStack <openstack-devel@lists.alioth.debian.org>
 Uploaders: Julien Danjou <acid@debian.org>,
            Thomas Goirand <zigo@debian.org>,
            Mehdi Abaakouk <sileht@sileht.net>
-Build-Depends: debhelper (>= 9),
+Build-Depends: autopkgtest,
+               debhelper (>= 9),
                python-all (>= 2.6.6-3~),
-               python-mock,
-               python-nose,
                python-setuptools (>= 0.6b3),
                python3-all,
-               python3-mock,
-               python3-nose,
                python3-setuptools
+Build-Depends-Indep: python-mock,
+                     python-nose,
+                     python-pytest,
+                     python3-mock,
+                     python3-nose,
+                     python3-pytest
 Standards-Version: 3.9.4
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=openstack/python-jsonschema.git
 Vcs-Git: git://anonscm.debian.org/openstack/python-jsonschema.git
@@ -37,7 +40,7 @@ Description: An(other) implementation of JSON Schema (Draft 3) for Python
 Package: python3-jsonschema
 Architecture: all
 Pre-Depends: dpkg (>= 1.15.6~)
-Depends: ${misc:Depends}, python3 (>= 3.2.3)
+Depends: python3 (>= 3.2.3), ${misc:Depends}
 Description: An(other) implementation of JSON Schema (Draft 3) for Python 3
  JSON Schema is a specification for a JSON-based format for defining
  the structure of JSON data. JSON Schema provides a contract for what

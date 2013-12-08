@@ -3,6 +3,7 @@ python-jsonschema (2.3.0-1) unstable; urgency=low
   [ Thomas Goirand ]
   * New upstream release.
   * Do not depend on openstack-pkg-tools anymore.
+  * Build-Depends on autopkgtest and python{3,}-pytest.
 
   [ Jean-Baptiste Lallement ]
   * Add autopkgtest that runs the upstream test suite against the installed
