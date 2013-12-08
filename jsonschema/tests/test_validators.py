@@ -8,7 +8,7 @@ from jsonschema import FormatChecker, ValidationError
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
-    RefResolutionError, UnknownType, ErrorTree, Draft3Validator,
+    RefResolutionError, UnknownType, Draft3Validator,
     Draft4Validator, RefResolver, create, extend, validator_for, validate,
 )
 
@@ -424,6 +424,23 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(list(e5.path), [1, "bar", "baz"])
         self.assertEqual(list(e6.path), [1, "foo"])
 
+        self.assertEqual(list(e1.schema_path), ["type"])
+        self.assertEqual(list(e2.schema_path), ["items", "type"])
+        self.assertEqual(
+            list(e3.schema_path), ["items", "properties", "bar", "type"],
+        )
+        self.assertEqual(
+            list(e4.schema_path),
+            ["items", "properties", "bar", "properties", "bar", "required"],
+        )
+        self.assertEqual(
+            list(e5.schema_path),
+            ["items", "properties", "bar", "properties", "baz", "minItems"]
+        )
+        self.assertEqual(
+            list(e6.schema_path), ["items", "properties", "foo", "enum"],
+        )
+
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "type")
         self.assertEqual(e3.validator, "type")
@@ -483,68 +500,22 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
 
+    def test_additionalItems_with_items(self):
+        instance = ["foo", "bar", 1]
+        schema = {
+            "items": [{}],
+            "additionalItems" : {"type": "integer", "minimum": 5}
+        }
 
-class TestErrorTree(unittest.TestCase):
-    def setUp(self):
-        self.validator = Draft3Validator({})
+        validator = Draft3Validator(schema)
+        errors = validator.iter_errors(instance)
+        e1, e2 = sorted_errors(errors)
 
-    def test_it_knows_how_many_total_errors_it_contains(self):
-        errors = [mock.MagicMock() for _ in range(8)]
-        tree = ErrorTree(errors)
-        self.assertEqual(tree.total_errors, 8)
+        self.assertEqual(list(e1.path), [1])
+        self.assertEqual(list(e2.path), [2])
 
-    def test_it_contains_an_item_if_the_item_had_an_error(self):
-        errors = [ValidationError("a message", path=["bar"])]
-        tree = ErrorTree(errors)
-        self.assertIn("bar", tree)
-
-    def test_it_does_not_contain_an_item_if_the_item_had_no_error(self):
-        errors = [ValidationError("a message", path=["bar"])]
-        tree = ErrorTree(errors)
-        self.assertNotIn("foo", tree)
-
-    def test_validators_that_failed_appear_in_errors_dict(self):
-        error = ValidationError("a message", validator="foo")
-        tree = ErrorTree([error])
-        self.assertEqual(tree.errors, {"foo" : error})
-
-    def test_it_creates_a_child_tree_for_each_nested_path(self):
-        errors = [
-            ValidationError("a bar message", path=["bar"]),
-            ValidationError("a bar -> 0 message", path=["bar", 0]),
-        ]
-        tree = ErrorTree(errors)
-        self.assertIn(0, tree["bar"])
-        self.assertNotIn(1, tree["bar"])
-
-    def test_children_have_their_errors_dicts_built(self):
-        e1, e2 = (
-            ValidationError("message 1", validator="foo", path=["bar", 0]),
-            ValidationError("message 2", validator="quux", path=["bar", 0]),
-        )
-        tree = ErrorTree([e1, e2])
-        self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})
-
-    def test_it_does_not_contain_subtrees_that_are_not_in_the_instance(self):
-        error = ValidationError("a message", validator="foo", instance=[])
-        tree = ErrorTree([error])
-
-        with self.assertRaises(IndexError):
-            tree[0]
-
-    def test_if_its_in_the_tree_anyhow_it_does_not_raise_an_error(self):
-        """
-        If a validator is dumb (like :validator:`required` in draft 3) and
-        refers to a path that isn't in the instance, the tree still properly
-        returns a subtree for that path.
-
-        """
-
-        error = ValidationError(
-            "a message", validator="foo", instance={}, path=["foo"],
-        )
-        tree = ErrorTree([error])
-        self.assertIsInstance(tree["foo"], ErrorTree)
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "minimum")
 
 
 class ValidatorTestMixin(object):
@@ -621,9 +592,36 @@ class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
         self.assertTrue(self.validator.is_type(True, "boolean"))
         self.assertTrue(self.validator.is_valid(True, {"type": "any"}))
 
+    def test_non_string_custom_types(self):
+        schema = {'type': [None]}
+        cls = self.validator_class(schema, types={None: type(None)})
+        cls.validate(None, schema)
+
 
 class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
     validator_class = Draft4Validator
+
+
+class TestBuiltinFormats(unittest.TestCase):
+    """
+    The built-in (specification-defined) formats do not raise type errors.
+
+    If an instance or value is not a string, it should be ignored.
+
+    """
+
+
+for format in FormatChecker.checkers:
+    def test(self, format=format):
+        v = Draft4Validator({"format": format}, format_checker=FormatChecker())
+        v.validate(123)
+
+    name = "test_{0}_ignores_non_strings".format(format)
+    if not PY3:
+        name = name.encode("utf-8")
+    test.__name__ = name
+    setattr(TestBuiltinFormats, name, test)
+    del test  # Ugh py.test. Stop discovering top level tests.
 
 
 class TestValidatorFor(unittest.TestCase):

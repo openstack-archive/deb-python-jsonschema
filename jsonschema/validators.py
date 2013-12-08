@@ -1,6 +1,5 @@
 from __future__ import division, unicode_literals
 
-import collections
 import contextlib
 import json
 import numbers
@@ -15,6 +14,7 @@ from jsonschema.compat import (
     PY3, Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
     str_types, int_types, iteritems,
 )
+from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
 from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
 
 
@@ -118,7 +118,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
 
         def is_type(self, instance, type):
             if type not in self._types:
-                raise UnknownType(type)
+                raise UnknownType(type, instance, self.schema)
             pytypes = self._types[type]
 
             # bool inherits from int, so ensure bools aren't reported as ints
@@ -379,82 +379,6 @@ class RefResolver(object):
         return result
 
 
-class ErrorTree(object):
-    """
-    ErrorTrees make it easier to check which validations failed.
-
-    """
-
-    _instance = _unset
-
-    def __init__(self, errors=()):
-        self.errors = {}
-        self._contents = collections.defaultdict(self.__class__)
-
-        for error in errors:
-            container = self
-            for element in error.path:
-                container = container[element]
-            container.errors[error.validator] = error
-
-            self._instance = error.instance
-
-    def __contains__(self, index):
-        """
-        Check whether ``instance[index]`` has any errors.
-
-        """
-
-        return index in self._contents
-
-    def __getitem__(self, index):
-        """
-        Retrieve the child tree one level down at the given ``index``.
-
-        If the index is not in the instance that this tree corresponds to and
-        is not known by this tree, whatever error would be raised by
-        ``instance.__getitem__`` will be propagated (usually this is some
-        subclass of :class:`LookupError`.
-
-        """
-
-        if self._instance is not _unset and index not in self:
-            self._instance[index]
-        return self._contents[index]
-
-    def __setitem__(self, index, value):
-        self._contents[index] = value
-
-    def __iter__(self):
-        """
-        Iterate (non-recursively) over the indices in the instance with errors.
-
-        """
-
-        return iter(self._contents)
-
-    def __len__(self):
-        """
-        Same as :attr:`total_errors`.
-
-        """
-
-        return self.total_errors
-
-    def __repr__(self):
-        return "<%s (%s total errors)>" % (self.__class__.__name__, len(self))
-
-    @property
-    def total_errors(self):
-        """
-        The total number of errors in the entire tree, including children.
-
-        """
-
-        child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
-        return len(self.errors) + child_errors
-
-
 def validator_for(schema, default=_unset):
     if default is _unset:
         default = Draft4Validator
@@ -462,6 +386,46 @@ def validator_for(schema, default=_unset):
 
 
 def validate(instance, schema, cls=None, *args, **kwargs):
+    """
+    Validate an instance under the given schema.
+
+        >>> validate([2, 3, 4], {"maxItems" : 2})
+        Traceback (most recent call last):
+            ...
+        ValidationError: [2, 3, 4] is too long
+
+    :func:`validate` will first verify that the provided schema is itself
+    valid, since not doing so can lead to less obvious error messages and fail
+    in less obvious or consistent ways. If you know you have a valid schema
+    already or don't care, you might prefer using the
+    :meth:`~IValidator.validate` method directly on a specific validator
+    (e.g. :meth:`Draft4Validator.validate`).
+
+
+    :argument instance: the instance to validate
+    :argument schema: the schema to validate with
+    :argument cls: an :class:`IValidator` class that will be used to validate
+                   the instance.
+
+    If the ``cls`` argument is not provided, two things will happen in
+    accordance with the specification. First, if the schema has a
+    :validator:`$schema` property containing a known meta-schema [#]_ then the
+    proper validator will be used.  The specification recommends that all
+    schemas contain :validator:`$schema` properties for this reason. If no
+    :validator:`$schema` property is found, the default validator class is
+    :class:`Draft4Validator`.
+
+    Any other provided positional and keyword arguments will be passed on when
+    instantiating the ``cls``.
+
+    :raises:
+        :exc:`ValidationError` if the instance is invalid
+
+        :exc:`SchemaError` if the schema itself is invalid
+
+    .. rubric:: Footnotes
+    .. [#] known by a validator registered with :func:`validates`
+    """
     if cls is None:
         cls = validator_for(schema)
     cls.check_schema(schema)

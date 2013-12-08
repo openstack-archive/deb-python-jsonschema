@@ -49,21 +49,33 @@ Features
 Release Notes
 -------------
 
-``v2.0.0`` adds a better interface for creating and extending validators in the
-form of ``jsonschema.validators.create`` and ``jsonschema.validators.extend``.
-The documentation is still a bit lacking in this area but it's getting there.
-See the tests in ``jsonschema.tests.test_validators`` and the source code if
-you'd like to try it out now. ``ValidatorMixin`` has been removed.
+``v2.3.0`` removes the (improper) limitation of ``format`` to strings. It also
+adds the `jsonschema.exceptions.best_match <https://python-jsonschema.readthedocs.org/en/latest/errors/#best-match-and-by-relevance>`_
+function which can be used to guess at the best matching single validation
+error for a given instance.
 
-Practically speaking, this affects validators that subclassed a built-in
-validator and extended a validator function (presumably with an upcall via
-``super``), as the correct way to do so is now to call
-``TheValidator.VALIDATORS["extended_validator_fn"]`` directly in a new
-validator function (and of course to use ``create``). Examples hopefully coming
-soon if more clarification is needed. Patches welcome of course.
 
-It also fixes a number of issues with ref resolution, one for array indices
-(#95) and one for improper handling of unknown URI schemes (#102).
+.. code-block:: python
+
+    >>> from jsonschema.validators import Draft4Validator
+    >>> from jsonschema.exceptions import best_match
+
+    >>> schema = {
+    ...     "properties" : {
+    ...         "foo" : {"type" : "string"},
+    ...         "bar" : {"properties" : {"baz": {"type": "string"}}},
+    ...     },
+    ... }
+    >>> instance = {"foo" : 12, "bar": {"baz" : 19}}
+    >>> print(best_match(Draft4Validator(schema).iter_errors(instance)).path)
+    deque(['foo'])
+
+
+where the error closer to the top of the instance in ``foo`` was selected
+as being more relevant.
+
+Also, URI references are now properly rejected by the URI format validator
+(i.e., it now only accepts full URIs, as defined in the specification).
 
 
 Running the Test Suite
@@ -87,7 +99,8 @@ favorite test runner. The tests live in the ``jsonschema.tests`` package.
 Community
 ---------
 
-There's a `mailing list <https://groups.google.com/forum/#!forum/jsonschema>`_ for this implementation on Google Groups.
+There's a `mailing list <https://groups.google.com/forum/#!forum/jsonschema>`_
+for this implementation on Google Groups.
 
 Please join, and feel free to send questions there.
 
@@ -104,3 +117,7 @@ it'd be most welcome!
 
 You can also generally find me on Freenode (nick: ``tos9``) in various
 channels, including ``#python``.
+
+If you feel overwhelmingly grateful, you can woo me with beer money on
+`Gittip <https://www.gittip.com/Julian/>`_ or via Google Wallet with the email
+in my GitHub profile.

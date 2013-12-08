@@ -59,8 +59,9 @@ def additionalItems(validator, aI, instance, schema):
     ):
         return
 
+    len_items = len(schema.get("items", []))
     if validator.is_type(aI, "object"):
-        for index, item in enumerate(instance[len(schema.get("items", [])):]):
+        for index, item in enumerate(instance[len_items:], start=len_items):
             for error in validator.descend(item, aI, path=index):
                 yield error
     elif not aI and len(instance) > len(schema.get("items", [])):
@@ -149,10 +150,7 @@ def pattern(validator, patrn, instance, schema):
 
 
 def format(validator, format, instance, schema):
-    if (
-        validator.format_checker is not None and
-        validator.is_type(instance, "string")
-    ):
+    if validator.format_checker is not None:
         try:
             validator.format_checker.check(instance, format)
         except FormatError as error:
@@ -214,7 +212,7 @@ def type_draft3(validator, types, instance, schema):
             if not errors:
                 return
             all_errors.extend(errors)
-        elif validator.is_type(type, "string"):
+        else:
             if validator.is_type(instance, type):
                 return
     else:
@@ -299,14 +297,16 @@ def required_draft4(validator, required, instance, schema):
 
 def minProperties_draft4(validator, mP, instance, schema):
     if validator.is_type(instance, "object") and len(instance) < mP:
-        yield ValidationError("%r is too short" % (instance,))
+        yield ValidationError(
+            "%r does not have enough properties" % (instance,)
+        )
 
 
 def maxProperties_draft4(validator, mP, instance, schema):
     if not validator.is_type(instance, "object"):
         return
     if validator.is_type(instance, "object") and len(instance) > mP:
-        yield ValidationError("%r is too short" % (instance,))
+        yield ValidationError("%r has too many properties" % (instance,))
 
 
 def allOf_draft4(validator, allOf, instance, schema):

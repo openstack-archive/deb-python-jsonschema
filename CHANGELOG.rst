@@ -1,3 +1,24 @@
+v2.3.0
+------
+
+* Added by_relevance and best_match (#91)
+* Fixed ``format`` to allow adding formats for non-strings (#125)
+* Fixed the ``uri`` format to reject URI references (#131)
+
+v2.2.0
+------
+
+* Compile the host name regex (#127)
+* Allow arbitrary objects to be types (#129)
+
+v2.1.0
+------
+
+* Support RFC 3339 datetimes in conformance with the spec
+* Fixed error paths for additionalItems + items (#122)
+* Fixed wording for min / maxProperties (#117)
+
+
 v2.0.0
 ------
 

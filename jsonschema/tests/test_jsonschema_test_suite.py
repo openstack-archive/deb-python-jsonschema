@@ -3,7 +3,7 @@ Test runner for the JSON Schema official test suite
 
 Tests comprehensive correctness of each draft's validator.
 
-See https://github.com/jsonschema/JSON-Schema-Test-Suite for details.
+See https://github.com/json-schema/JSON-Schema-Test-Suite for details.
 
 """
 
@@ -139,13 +139,15 @@ class DecimalMixin(object):
 def missing_format(checker):
     def missing_format(case):
         format = case["schema"].get("format")
-        if format not in checker.checkers or (
-            # datetime.datetime is overzealous about typechecking in <=1.9
+        if format not in checker.checkers:
+            return "Format checker {0!r} not found.".format(format)
+        elif (
             format == "date-time" and
             pypy_version_info is not None and
             pypy_version_info[:2] <= (1, 9)
         ):
-            return "Format checker not found."
+            # datetime.datetime is overzealous about typechecking in <=1.9
+            return "datetime.datetime is broken on this version of PyPy."
     return missing_format
 
 
@@ -175,6 +177,24 @@ class FormatMixin(object):
 
         with self.assertRaises(ValidationError) as cm:
             validator.validate("bar")
+        # Make sure original cause is attached
+        self.assertIs(cm.exception.cause, cause)
+
+    def test_it_validates_formats_of_any_type(self):
+        checker = mock.Mock(spec=FormatChecker)
+        validator = self.validator_class(
+            {"format" : "foo"}, format_checker=checker,
+        )
+
+        validator.validate([1, 2, 3])
+
+        checker.check.assert_called_once_with([1, 2, 3], "foo")
+
+        cause = ValueError()
+        checker.check.side_effect = FormatError('aoeu', cause=cause)
+
+        with self.assertRaises(ValidationError) as cm:
+            validator.validate([1, 2, 3])
         # Make sure original cause is attached
         self.assertIs(cm.exception.cause, cause)
 

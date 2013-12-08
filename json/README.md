@@ -52,9 +52,8 @@ they should be valid or invalid.
 Coverage
 --------
 
-Currently, draft 3 should have essentially full coverage for the core schema.
-
-The beginnings of draft 4 are underway.
+Draft 3 and 4 should have full coverage. If you see anything missing or think
+there is a useful test missing, please send a pull request or open an issue.
 
 Who Uses the Test Suite
 -----------------------
@@ -67,7 +66,11 @@ This suite is being used by:
   * [direct-schema (javascript)](https://github.com/IreneKnapp/direct-schema)
   * [jsonschema (javascript)](https://github.com/tdegrunt/jsonschema)
   * [JaySchema (javascript)](https://github.com/natesilva/jayschema)
+  * [z-schema (javascript)](https://github.com/zaggino/z-schema)
   * [jesse (Erlang)](https://github.com/klarna/jesse)
+  * [json-schema (PHP)](https://github.com/justinrainbow/json-schema)
+  * [gojsonschema (Go)](https://github.com/sigu-399/gojsonschema) 
+  * [json_schema (Dart)](https://github.com/patefacio/json_schema) 
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).

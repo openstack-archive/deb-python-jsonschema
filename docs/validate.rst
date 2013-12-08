@@ -14,46 +14,6 @@ The simplest way to validate an instance under a given schema is to use the
 
 .. autofunction:: validate
 
-    Validate an instance under the given schema.
-
-        >>> validate([2, 3, 4], {"maxItems" : 2})
-        Traceback (most recent call last):
-            ...
-        ValidationError: [2, 3, 4] is too long
-
-    :func:`validate` will first verify that the provided schema is itself
-    valid, since not doing so can lead to less obvious error messages and fail
-    in less obvious or consistent ways. If you know you have a valid schema
-    already or don't care, you might prefer using the
-    :meth:`~IValidator.validate` method directly on a specific validator
-    (e.g. :meth:`Draft4Validator.validate`).
-
-
-    :argument instance: the instance to validate
-    :argument schema: the schema to validate with
-    :argument cls: an :class:`IValidator` class that will be used to validate
-                   the instance.
-
-    If the ``cls`` argument is not provided, two things will happen in
-    accordance with the specification. First, if the schema has a
-    :validator:`$schema` property containing a known meta-schema [#]_ then the
-    proper validator will be used.  The specification recommends that all
-    schemas contain :validator:`$schema` properties for this reason. If no
-    :validator:`$schema` property is found, the default validator class is
-    :class:`Draft4Validator`.
-
-    Any other provided positional and keyword arguments will be passed on when
-    instantiating the ``cls``.
-
-    :raises:
-        :exc:`ValidationError` if the instance is invalid
-
-        :exc:`SchemaError` if the schema itself is invalid
-
-    .. rubric:: Footnotes
-    .. [#] known by a validator registered with :func:`validates`
-
-
 The Validator Interface
 -----------------------
 
@@ -255,7 +215,7 @@ validation can be enabled by hooking in a format-checking object into an
         using the :meth:`FormatChecker.checks` or
         :meth:`FormatChecker.cls_checks` decorators respectively.
 
-    .. method:: cls_checks(format, raises=())
+    .. classmethod:: cls_checks(format, raises=())
 
         Register a decorated function as *globally* validating a new format.
 
@@ -284,7 +244,7 @@ ipv4
 ipv6        OS must have :func:`socket.inet_pton` function
 email
 uri         requires rfc3987_
-date-time   requires isodate_
+date-time   requires strict-rfc3339_ [#]_
 date
 time
 regex
@@ -292,6 +252,13 @@ color       requires webcolors_
 ==========  ====================
 
 
+.. [#] For backwards compatibility, isodate_ is also supported, but it will
+      allow any `ISO 8601 <http://en.wikipedia.org/wiki/ISO_8601>`_ date-time,
+      not just `RFC 3339 <http://www.ietf.org/rfc/rfc3339.txt>`_ as mandated by
+      the JSON Schema specification.
+
+
 .. _isodate: http://pypi.python.org/pypi/isodate/
 .. _rfc3987: http://pypi.python.org/pypi/rfc3987/
+.. _strict-rfc3339: http://pypi.python.org/pypi/strict-rfc3339/
 .. _webcolors: http://pypi.python.org/pypi/webcolors/
