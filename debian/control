@@ -2,13 +2,10 @@ Source: python-jsonschema
 Section: python
 Priority: optional
 Maintainer: PKG OpenStack <openstack-devel@lists.alioth.debian.org>
-Uploaders: Loic Dachary (OuoU) <loic@debian.org>,
-           Julien Danjou <acid@debian.org>,
+Uploaders: Julien Danjou <acid@debian.org>,
            Thomas Goirand <zigo@debian.org>,
-           Ghe Rivero <ghe.rivero@stackops.com>,
            Mehdi Abaakouk <sileht@sileht.net>
 Build-Depends: debhelper (>= 9),
-               openstack-pkg-tools,
                python-all (>= 2.6.6-3~),
                python-mock,
                python-nose,
@@ -21,6 +18,7 @@ Standards-Version: 3.9.4
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=openstack/python-jsonschema.git
 Vcs-Git: git://anonscm.debian.org/openstack/python-jsonschema.git
 Homepage: https://github.com/Julian/jsonschema
+XS-Testsuite: autopkgtest
 
 Package: python-jsonschema
 Architecture: all
