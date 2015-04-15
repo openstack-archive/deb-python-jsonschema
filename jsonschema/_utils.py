@@ -1,7 +1,7 @@
 import itertools
 import json
+import pkgutil
 import re
-import os
 
 from jsonschema.compat import str_types, MutableMapping, urlsplit
 
@@ -53,13 +53,9 @@ def load_schema(name):
     Load a schema from ./schemas/``name``.json and return it.
 
     """
-    schemadir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        'schemas'
-    )
-    schemapath = os.path.join(schemadir, '%s.json' % (name,))
-    with open(schemapath) as f:
-        return json.load(f)
+
+    data = pkgutil.get_data(__package__, "schemas/{0}.json".format(name))
+    return json.loads(data.decode("utf-8"))
 
 
 def indent(string, times=1):

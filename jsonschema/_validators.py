@@ -16,7 +16,7 @@ def patternProperties(validator, patternProperties, instance, schema):
         for k, v in iteritems(instance):
             if re.search(pattern, k):
                 for error in validator.descend(
-                        v, subschema, path=k, schema_path=pattern
+                    v, subschema, path=k, schema_path=pattern,
                 ):
                     yield error
 
@@ -47,7 +47,7 @@ def items(validator, items, instance, schema):
     else:
         for (index, item), subschema in zip(enumerate(instance), items):
             for error in validator.descend(
-                    item, subschema, path=index, schema_path=index
+                item, subschema, path=index, schema_path=index,
             ):
                 yield error
 
@@ -76,12 +76,11 @@ def minimum(validator, minimum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
 
-    instance = float(instance)
     if schema.get("exclusiveMinimum", False):
-        failed = instance <= minimum
+        failed = float(instance) <= minimum
         cmp = "less than or equal to"
     else:
-        failed = instance < minimum
+        failed = float(instance) < minimum
         cmp = "less than"
 
     if failed:
@@ -94,7 +93,6 @@ def maximum(validator, maximum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
 
-    instance = float(instance)
     if schema.get("exclusiveMaximum", False):
         failed = instance >= maximum
         cmp = "greater than or equal to"
@@ -177,7 +175,7 @@ def dependencies(validator, dependencies, instance, schema):
 
         if validator.is_type(dependency, "object"):
             for error in validator.descend(
-                    instance, dependency, schema_path=property
+                instance, dependency, schema_path=property,
             ):
                 yield error
         else:

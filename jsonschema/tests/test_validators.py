@@ -1,11 +1,8 @@
-from __future__ import unicode_literals
-import contextlib
+from collections import deque
+from contextlib import contextmanager
 import json
-import pprint
-import textwrap
 
 from jsonschema import FormatChecker, ValidationError
-from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
     RefResolutionError, UnknownType, Draft3Validator,
@@ -15,10 +12,10 @@ from jsonschema.validators import (
 
 class TestCreateAndExtend(unittest.TestCase):
     def setUp(self):
-        self.meta_schema = {"properties" : {"smelly" : {}}}
+        self.meta_schema = {u"properties" : {u"smelly" : {}}}
         self.smelly = mock.MagicMock()
-        self.validators = {"smelly" : self.smelly}
-        self.types = {"dict" : dict}
+        self.validators = {u"smelly" : self.smelly}
+        self.types = {u"dict" : dict}
         self.Validator = create(
             meta_schema=self.meta_schema,
             validators=self.validators,
@@ -26,7 +23,7 @@ class TestCreateAndExtend(unittest.TestCase):
         )
 
         self.validator_value = 12
-        self.schema = {"smelly" : self.validator_value}
+        self.schema = {u"smelly" : self.validator_value}
         self.validator = self.Validator(self.schema)
 
     def test_attrs(self):
@@ -54,24 +51,24 @@ class TestCreateAndExtend(unittest.TestCase):
     def test_if_a_version_is_provided_it_is_registered(self):
         with mock.patch("jsonschema.validators.validates") as validates:
             validates.side_effect = lambda version : lambda cls : cls
-            Validator = create(meta_schema={"id" : "id"}, version="my version")
+            Validator = create(meta_schema={u"id" : ""}, version="my version")
         validates.assert_called_once_with("my version")
         self.assertEqual(Validator.__name__, "MyVersionValidator")
 
     def test_if_a_version_is_not_provided_it_is_not_registered(self):
         with mock.patch("jsonschema.validators.validates") as validates:
-            create(meta_schema={"id" : "id"})
+            create(meta_schema={u"id" : "id"})
         self.assertFalse(validates.called)
 
     def test_extend(self):
         validators = dict(self.Validator.VALIDATORS)
         new = mock.Mock()
 
-        Extended = extend(self.Validator, validators={"a new one" : new})
+        Extended = extend(self.Validator, validators={u"a new one" : new})
 
-        validators.update([("a new one", new)])
+        validators.update([(u"a new one", new)])
         self.assertEqual(Extended.VALIDATORS, validators)
-        self.assertNotIn("a new one", self.Validator.VALIDATORS)
+        self.assertNotIn(u"a new one", self.Validator.VALIDATORS)
 
         self.assertEqual(Extended.META_SCHEMA, self.Validator.META_SCHEMA)
         self.assertEqual(Extended.DEFAULT_TYPES, self.Validator.DEFAULT_TYPES)
@@ -84,9 +81,9 @@ class TestIterErrors(unittest.TestCase):
     def test_iter_errors(self):
         instance = [1, 2]
         schema = {
-            "disallow" : "array",
-            "enum" : [["a", "b", "c"], ["d", "e", "f"]],
-            "minItems" : 3
+            u"disallow" : u"array",
+            u"enum" : [["a", "b", "c"], ["d", "e", "f"]],
+            u"minItems" : 3
         }
 
         got = (e.message for e in self.validator.iter_errors(instance, schema))
@@ -100,10 +97,10 @@ class TestIterErrors(unittest.TestCase):
     def test_iter_errors_multiple_failures_one_validator(self):
         instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
         schema = {
-            "properties" : {
-                "foo" : {"type" : "string"},
-                "bar" : {"minItems" : 2},
-                "baz" : {"maximum" : 10, "enum" : [2, 4, 6, 8]},
+            u"properties" : {
+                "foo" : {u"type" : "string"},
+                "bar" : {u"minItems" : 2},
+                "baz" : {u"maximum" : 10, u"enum" : [2, 4, 6, 8]},
             }
         }
 
@@ -119,55 +116,63 @@ class TestValidationErrorMessages(unittest.TestCase):
         return e.exception.message
 
     def test_single_type_failure(self):
-        message = self.message_for(instance=1, schema={"type" : "string"})
-        self.assertEqual(message, "1 is not of type %r" % "string")
+        message = self.message_for(instance=1, schema={u"type" : u"string"})
+        self.assertEqual(message, "1 is not of type %r" % u"string")
 
     def test_single_type_list_failure(self):
-        message = self.message_for(instance=1, schema={"type" : ["string"]})
-        self.assertEqual(message, "1 is not of type %r" % "string")
+        message = self.message_for(instance=1, schema={u"type" : [u"string"]})
+        self.assertEqual(message, "1 is not of type %r" % u"string")
 
     def test_multiple_type_failure(self):
-        types = ("string", "object")
-        message = self.message_for(instance=1, schema={"type" : list(types)})
+        types = u"string", u"object"
+        message = self.message_for(instance=1, schema={u"type" : list(types)})
         self.assertEqual(message, "1 is not of type %r, %r" % types)
 
     def test_object_without_title_type_failure(self):
-        type = {"type" : [{"minimum" : 3}]}
-        message = self.message_for(instance=1, schema={"type" : [type]})
+        type = {u"type" : [{u"minimum" : 3}]}
+        message = self.message_for(instance=1, schema={u"type" : [type]})
         self.assertEqual(message, "1 is not of type %r" % (type,))
 
     def test_object_with_name_type_failure(self):
         name = "Foo"
-        schema = {"type" : [{"name" : name, "minimum" : 3}]}
+        schema = {u"type" : [{u"name" : name, u"minimum" : 3}]}
         message = self.message_for(instance=1, schema=schema)
         self.assertEqual(message, "1 is not of type %r" % (name,))
 
+    def test_minimum(self):
+        message = self.message_for(instance=1, schema={"minimum" : 2})
+        self.assertEqual(message, "1 is less than the minimum of 2")
+
+    def test_maximum(self):
+        message = self.message_for(instance=1, schema={"maximum" : 0})
+        self.assertEqual(message, "1 is greater than the maximum of 0")
+
     def test_dependencies_failure_has_single_element_not_list(self):
         depend, on = "bar", "foo"
-        schema = {"dependencies" : {depend : on}}
+        schema = {u"dependencies" : {depend : on}}
         message = self.message_for({"bar" : 2}, schema)
         self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
 
     def test_additionalItems_single_failure(self):
         message = self.message_for(
-            [2], {"items" : [], "additionalItems" : False},
+            [2], {u"items" : [], u"additionalItems" : False},
         )
         self.assertIn("(2 was unexpected)", message)
 
     def test_additionalItems_multiple_failures(self):
         message = self.message_for(
-            [1, 2, 3], {"items" : [], "additionalItems" : False}
+            [1, 2, 3], {u"items" : [], u"additionalItems" : False}
         )
         self.assertIn("(1, 2, 3 were unexpected)", message)
 
     def test_additionalProperties_single_failure(self):
         additional = "foo"
-        schema = {"additionalProperties" : False}
+        schema = {u"additionalProperties" : False}
         message = self.message_for({additional : 2}, schema)
         self.assertIn("(%r was unexpected)" % (additional,), message)
 
     def test_additionalProperties_multiple_failures(self):
-        schema = {"additionalProperties" : False}
+        schema = {u"additionalProperties" : False}
         message = self.message_for(dict.fromkeys(["foo", "bar"]), schema)
 
         self.assertIn(repr("foo"), message)
@@ -177,103 +182,14 @@ class TestValidationErrorMessages(unittest.TestCase):
     def test_invalid_format_default_message(self):
         checker = FormatChecker(formats=())
         check_fn = mock.Mock(return_value=False)
-        checker.checks("thing")(check_fn)
+        checker.checks(u"thing")(check_fn)
 
-        schema = {"format" : "thing"}
+        schema = {u"format" : u"thing"}
         message = self.message_for("bla", schema, format_checker=checker)
 
         self.assertIn(repr("bla"), message)
         self.assertIn(repr("thing"), message)
         self.assertIn("is not a", message)
-
-
-class TestErrorReprStr(unittest.TestCase):
-
-    message = "hello"
-
-    def setUp(self):
-        self.error = ValidationError(
-            message=self.message,
-            validator="type",
-            validator_value="string",
-            instance=5,
-            schema={"type" : "string"},
-        )
-
-    def assertShows(self, message):
-        if PY3:
-            message = message.replace("u'", "'")
-        message = textwrap.dedent(message).rstrip("\n")
-
-        message_line, _, rest = str(self.error).partition("\n")
-        self.assertEqual(message_line, self.message)
-        self.assertEqual(rest, message)
-
-    def test_repr(self):
-        self.assertEqual(
-            repr(self.error),
-            "<ValidationError: %r>" % self.message,
-        )
-
-    def test_unset_error(self):
-        error = ValidationError("message")
-        self.assertEqual(str(error), "message")
-
-        kwargs = {
-            "validator": "type",
-            "validator_value": "string",
-            "instance": 5,
-            "schema": {"type": "string"}
-        }
-        # Just the message should show if any of the attributes are unset
-        for attr in kwargs:
-            k = dict(kwargs)
-            del k[attr]
-            error = ValidationError("message", **k)
-            self.assertEqual(str(error), "message")
-
-    def test_empty_paths(self):
-        self.error.path = self.error.schema_path = []
-        self.assertShows(
-            """
-            Failed validating u'type' in schema:
-                {u'type': u'string'}
-
-            On instance:
-                5
-            """
-        )
-
-    def test_one_item_paths(self):
-        self.error.path = [0]
-        self.error.schema_path = ["items"]
-        self.assertShows(
-            """
-            Failed validating u'type' in schema:
-                {u'type': u'string'}
-
-            On instance[0]:
-                5
-            """
-        )
-
-    def test_multiple_item_paths(self):
-        self.error.path = [0, "a"]
-        self.error.schema_path = ["items", 0, 1]
-        self.assertShows(
-            """
-            Failed validating u'type' in schema[u'items'][0]:
-                {u'type': u'string'}
-
-            On instance[0][u'a']:
-                5
-            """
-        )
-
-    def test_uses_pprint(self):
-        with mock.patch.object(pprint, "pformat") as pformat:
-            str(self.error)
-            self.assertGreater(pformat.call_count, 1)  # schema + instance
 
 
 class TestValidationErrorDetails(unittest.TestCase):
@@ -294,29 +210,55 @@ class TestValidationErrorDetails(unittest.TestCase):
         e = errors[0]
 
         self.assertEqual(e.validator, "anyOf")
-        self.assertEqual(list(e.schema_path), ["anyOf"])
         self.assertEqual(e.validator_value, schema["anyOf"])
         self.assertEqual(e.instance, instance)
         self.assertEqual(e.schema, schema)
-        self.assertEqual(list(e.path), [])
+        self.assertIsNone(e.parent)
+
+        self.assertEqual(e.path, deque([]))
+        self.assertEqual(e.relative_path, deque([]))
+        self.assertEqual(e.absolute_path, deque([]))
+
+        self.assertEqual(e.schema_path, deque(["anyOf"]))
+        self.assertEqual(e.relative_schema_path, deque(["anyOf"]))
+        self.assertEqual(e.absolute_schema_path, deque(["anyOf"]))
+
         self.assertEqual(len(e.context), 2)
 
         e1, e2 = sorted_errors(e.context)
 
         self.assertEqual(e1.validator, "minimum")
-        self.assertEqual(list(e1.schema_path), [0, "minimum"])
         self.assertEqual(e1.validator_value, schema["anyOf"][0]["minimum"])
         self.assertEqual(e1.instance, instance)
         self.assertEqual(e1.schema, schema["anyOf"][0])
-        self.assertEqual(list(e1.path), [])
-        self.assertEqual(len(e1.context), 0)
+        self.assertIs(e1.parent, e)
+
+        self.assertEqual(e1.path, deque([]))
+        self.assertEqual(e1.absolute_path, deque([]))
+        self.assertEqual(e1.relative_path, deque([]))
+
+        self.assertEqual(e1.schema_path, deque([0, "minimum"]))
+        self.assertEqual(e1.relative_schema_path, deque([0, "minimum"]))
+        self.assertEqual(
+            e1.absolute_schema_path, deque(["anyOf", 0, "minimum"]),
+        )
+
+        self.assertFalse(e1.context)
 
         self.assertEqual(e2.validator, "type")
-        self.assertEqual(list(e2.schema_path), [1, "type"])
         self.assertEqual(e2.validator_value, schema["anyOf"][1]["type"])
         self.assertEqual(e2.instance, instance)
         self.assertEqual(e2.schema, schema["anyOf"][1])
-        self.assertEqual(list(e2.path), [])
+        self.assertIs(e2.parent, e)
+
+        self.assertEqual(e2.path, deque([]))
+        self.assertEqual(e2.relative_path, deque([]))
+        self.assertEqual(e2.absolute_path, deque([]))
+
+        self.assertEqual(e2.schema_path, deque([1, "type"]))
+        self.assertEqual(e2.relative_schema_path, deque([1, "type"]))
+        self.assertEqual(e2.absolute_schema_path, deque(["anyOf", 1, "type"]))
+
         self.assertEqual(len(e2.context), 0)
 
     def test_type(self):
@@ -339,36 +281,61 @@ class TestValidationErrorDetails(unittest.TestCase):
         e = errors[0]
 
         self.assertEqual(e.validator, "type")
-        self.assertEqual(list(e.schema_path), ["type"])
         self.assertEqual(e.validator_value, schema["type"])
         self.assertEqual(e.instance, instance)
         self.assertEqual(e.schema, schema)
-        self.assertEqual(list(e.path), [])
+        self.assertIsNone(e.parent)
+
+        self.assertEqual(e.path, deque([]))
+        self.assertEqual(e.relative_path, deque([]))
+        self.assertEqual(e.absolute_path, deque([]))
+
+        self.assertEqual(e.schema_path, deque(["type"]))
+        self.assertEqual(e.relative_schema_path, deque(["type"]))
+        self.assertEqual(e.absolute_schema_path, deque(["type"]))
+
         self.assertEqual(len(e.context), 2)
 
         e1, e2 = sorted_errors(e.context)
 
         self.assertEqual(e1.validator, "type")
-        self.assertEqual(list(e1.schema_path), [0, "type"])
         self.assertEqual(e1.validator_value, schema["type"][0]["type"])
         self.assertEqual(e1.instance, instance)
         self.assertEqual(e1.schema, schema["type"][0])
-        self.assertEqual(list(e1.path), [])
-        self.assertEqual(len(e1.context), 0)
+        self.assertIs(e1.parent, e)
+
+        self.assertEqual(e1.path, deque([]))
+        self.assertEqual(e1.relative_path, deque([]))
+        self.assertEqual(e1.absolute_path, deque([]))
+
+        self.assertEqual(e1.schema_path, deque([0, "type"]))
+        self.assertEqual(e1.relative_schema_path, deque([0, "type"]))
+        self.assertEqual(e1.absolute_schema_path, deque(["type", 0, "type"]))
+
+        self.assertFalse(e1.context)
 
         self.assertEqual(e2.validator, "enum")
+        self.assertEqual(e2.validator_value, [2])
+        self.assertEqual(e2.instance, 1)
+        self.assertEqual(e2.schema, {u"enum" : [2]})
+        self.assertIs(e2.parent, e)
+
+        self.assertEqual(e2.path, deque(["foo"]))
+        self.assertEqual(e2.relative_path, deque(["foo"]))
+        self.assertEqual(e2.absolute_path, deque(["foo"]))
+
         self.assertEqual(
-            list(e2.schema_path),
-            [1, "properties", "foo", "enum"]
+            e2.schema_path, deque([1, "properties", "foo", "enum"]),
         )
         self.assertEqual(
-            e2.validator_value,
-            schema["type"][1]["properties"]["foo"]["enum"]
+            e2.relative_schema_path, deque([1, "properties", "foo", "enum"]),
         )
-        self.assertEqual(e2.instance, instance["foo"])
-        self.assertEqual(e2.schema, schema["type"][1]["properties"]["foo"])
-        self.assertEqual(list(e2.path), ["foo"])
-        self.assertEqual(len(e2.context), 0)
+        self.assertEqual(
+            e2.absolute_schema_path,
+            deque(["type", 1, "properties", "foo", "enum"]),
+        )
+
+        self.assertFalse(e2.context)
 
     def test_single_nesting(self):
         instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
@@ -384,10 +351,20 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2, e3, e4 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), ["bar"])
-        self.assertEqual(list(e2.path), ["baz"])
-        self.assertEqual(list(e3.path), ["baz"])
-        self.assertEqual(list(e4.path), ["foo"])
+        self.assertEqual(e1.path, deque(["bar"]))
+        self.assertEqual(e2.path, deque(["baz"]))
+        self.assertEqual(e3.path, deque(["baz"]))
+        self.assertEqual(e4.path, deque(["foo"]))
+
+        self.assertEqual(e1.relative_path, deque(["bar"]))
+        self.assertEqual(e2.relative_path, deque(["baz"]))
+        self.assertEqual(e3.relative_path, deque(["baz"]))
+        self.assertEqual(e4.relative_path, deque(["foo"]))
+
+        self.assertEqual(e1.absolute_path, deque(["bar"]))
+        self.assertEqual(e2.absolute_path, deque(["baz"]))
+        self.assertEqual(e3.absolute_path, deque(["baz"]))
+        self.assertEqual(e4.absolute_path, deque(["foo"]))
 
         self.assertEqual(e1.validator, "minItems")
         self.assertEqual(e2.validator, "enum")
@@ -417,15 +394,15 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2, e3, e4, e5, e6 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), [])
-        self.assertEqual(list(e2.path), [0])
-        self.assertEqual(list(e3.path), [1, "bar"])
-        self.assertEqual(list(e4.path), [1, "bar", "bar"])
-        self.assertEqual(list(e5.path), [1, "bar", "baz"])
-        self.assertEqual(list(e6.path), [1, "foo"])
+        self.assertEqual(e1.path, deque([]))
+        self.assertEqual(e2.path, deque([0]))
+        self.assertEqual(e3.path, deque([1, "bar"]))
+        self.assertEqual(e4.path, deque([1, "bar", "bar"]))
+        self.assertEqual(e5.path, deque([1, "bar", "baz"]))
+        self.assertEqual(e6.path, deque([1, "foo"]))
 
-        self.assertEqual(list(e1.schema_path), ["type"])
-        self.assertEqual(list(e2.schema_path), ["items", "type"])
+        self.assertEqual(e1.schema_path, deque(["type"]))
+        self.assertEqual(e2.schema_path, deque(["items", "type"]))
         self.assertEqual(
             list(e3.schema_path), ["items", "properties", "bar", "type"],
         )
@@ -458,8 +435,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), ["bar"])
-        self.assertEqual(list(e2.path), ["foo"])
+        self.assertEqual(e1.path, deque(["bar"]))
+        self.assertEqual(e2.path, deque(["foo"]))
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -477,8 +454,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), ["bar"])
-        self.assertEqual(list(e2.path), ["foo"])
+        self.assertEqual(e1.path, deque(["bar"]))
+        self.assertEqual(e2.path, deque(["foo"]))
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -494,8 +471,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), [0])
-        self.assertEqual(list(e2.path), [1])
+        self.assertEqual(e1.path, deque([0]))
+        self.assertEqual(e2.path, deque([1]))
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -511,8 +488,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), [1])
-        self.assertEqual(list(e2.path), [2])
+        self.assertEqual(e1.path, deque([1]))
+        self.assertEqual(e2.path, deque([2]))
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -556,7 +533,7 @@ class ValidatorTestMixin(object):
         resolver = RefResolver("", {})
         schema = {"$ref" : mock.Mock()}
 
-        @contextlib.contextmanager
+        @contextmanager
         def resolving():
             yield {"type": "integer"}
 
@@ -617,8 +594,6 @@ for format in FormatChecker.checkers:
         v.validate(123)
 
     name = "test_{0}_ignores_non_strings".format(format)
-    if not PY3:
-        name = name.encode("utf-8")
     test.__name__ = name
     setattr(TestBuiltinFormats, name, test)
     del test  # Ugh py.test. Stop discovering top level tests.
