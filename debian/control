@@ -2,13 +2,12 @@ Source: python-jsonschema
 Section: python
 Priority: optional
 Maintainer: PKG OpenStack <openstack-devel@lists.alioth.debian.org>
-Uploaders: Julien Danjou <acid@debian.org>,
-           Thomas Goirand <zigo@debian.org>,
-           Mehdi Abaakouk <sileht@sileht.net>
+Uploaders: Thomas Goirand <zigo@debian.org>
 Build-Depends: autopkgtest,
                debhelper (>= 9),
-               python-all (>= 2.6.6-3~),
-               python-setuptools (>= 0.6b3),
+               dh-python,
+               python-all,
+               python-setuptools,
                python3-all,
                python3-setuptools
 Build-Depends-Indep: python-mock,
@@ -25,7 +24,6 @@ XS-Testsuite: autopkgtest
 
 Package: python-jsonschema
 Architecture: all
-Pre-Depends: dpkg (>= 1.15.6~)
 Depends: python-mock, ${misc:Depends}, ${python:Depends}
 Description: An(other) implementation of JSON Schema (Draft 3) for Python
  JSON Schema is a specification for a JSON-based format for defining
@@ -39,7 +37,6 @@ Description: An(other) implementation of JSON Schema (Draft 3) for Python
 
 Package: python3-jsonschema
 Architecture: all
-Pre-Depends: dpkg (>= 1.15.6~)
 Depends: python3 (>= 3.2.3), ${misc:Depends}
 Description: An(other) implementation of JSON Schema (Draft 3) for Python 3
  JSON Schema is a specification for a JSON-based format for defining
