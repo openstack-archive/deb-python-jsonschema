@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+export PACKAGE_VERSION=$(shell dpkg-parsechangelog -S Version | sed -e 's/^[[:digit:]]*://' -e 's/[-].*//' -e 's/~/.0/')
+
 PYTHON3:=$(shell py3versions -r)
 py3sdo=set -ex; $(foreach py, $(PYTHON3), $(py) $(1);)
 
@@ -16,6 +18,7 @@ ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 endif
 
 override_dh_auto_build:
+	echo $$PACKAGE_VERSION  | sed s/\\./-/g >version.txt
 	dh_auto_build
 	$(call py3sdo, setup.py build)
 
@@ -24,6 +27,7 @@ override_dh_auto_install:
 	$(call py3sdo, setup.py install --root=$(CURDIR)/debian/tmp --install-layout=deb)
 
 override_dh_auto_clean:
+	echo $$PACKAGE_VERSION  | sed s/\\./-/g >version.txt
 	dh_auto_clean
-	rm -rf build
-	rm -rf *.egg-info __pycache__
+	rm -rf build version.txt jsonschema/_version.py
+	rm -rf __pycache__
