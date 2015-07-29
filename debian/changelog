@@ -2,6 +2,7 @@ python-jsonschema (2.5.1-1) experimental; urgency=medium
 
   * New upstream release.
   * Usual debian/control clean-up.
+  * Added python{3,}-vcversioner as build-depends.
 
  -- Thomas Goirand <zigo@debian.org>  Wed, 29 Jul 2015 23:18:54 +0200
 
