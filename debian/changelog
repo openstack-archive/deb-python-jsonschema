@@ -6,6 +6,7 @@ python-jsonschema (2.5.1-1) experimental; urgency=medium
   * Creates version.txt on build, clean it on clean.
   * Do not delete *egg-info on clean, use debian/source/options instead.
   * Removed XS-Test-Suite in debian/control.
+  * Added python-functools32 as build-depends.
 
  -- Thomas Goirand <zigo@debian.org>  Wed, 29 Jul 2015 23:18:54 +0200
 

@@ -11,7 +11,8 @@ Build-Depends: autopkgtest,
                python-vcversioner,
                python3-all,
                python3-setuptools,
-Build-Depends-Indep: python-mock,
+Build-Depends-Indep: python-functools32,
+                     python-mock,
                      python-nose,
                      python-pytest,
                      python3-mock,
@@ -24,7 +25,8 @@ Homepage: https://github.com/Julian/jsonschema
 
 Package: python-jsonschema
 Architecture: all
-Depends: python-mock,
+Depends: python-functools32,
+         python-mock,
          ${misc:Depends},
          ${python:Depends},
 Description: An(other) implementation of JSON Schema (Draft 3) for Python
