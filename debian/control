@@ -21,7 +21,6 @@ Standards-Version: 3.9.6
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=openstack/python-jsonschema.git
 Vcs-Git: git://anonscm.debian.org/openstack/python-jsonschema.git
 Homepage: https://github.com/Julian/jsonschema
-XS-Testsuite: autopkgtest
 
 Package: python-jsonschema
 Architecture: all
