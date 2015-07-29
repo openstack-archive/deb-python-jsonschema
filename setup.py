@@ -1,9 +1,9 @@
+import os
+
 from setuptools import setup
 
-from jsonschema import __version__
 
-
-with open("README.rst") as readme:
+with open(os.path.join(os.path.dirname(__file__), "README.rst")) as readme:
     long_description = readme.read()
 
 classifiers = [
@@ -21,11 +21,18 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
+extras_require = {
+    "format" : ["rfc3987", "strict-rfc3339", "webcolors"],
+    ":python_version=='2.6'": ["argparse", "repoze.lru"],
+    ":python_version=='2.7'": ["functools32"],
+}
+
 setup(
     name="jsonschema",
-    version=__version__,
     packages=["jsonschema", "jsonschema.tests"],
     package_data={"jsonschema": ["schemas/*.json"]},
+    setup_requires=["vcversioner"],
+    extras_require=extras_require,
     author="Julian Berman",
     author_email="Julian@GrayVines.com",
     classifiers=classifiers,
@@ -34,4 +41,5 @@ setup(
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
     entry_points={"console_scripts": ["jsonschema = jsonschema.cli:main"]},
+    vcversioner={"version_module_paths" : ["jsonschema/_version.py"]},
 )

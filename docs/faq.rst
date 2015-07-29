@@ -16,10 +16,10 @@ It's perfectly valid (and perhaps even useful) to have a default that is not
 valid under the schema it lives in! So an instance modified by the default
 would pass validation the first time, but fail the second!
 
-Still, filling in defaults is a thing that is useful. :mod:`jsonschema` allows
-you to :doc:`define your own validators <creating>`, so you can easily create a
-:class:`IValidator` that does do default setting. Here's some code to get you
-started:
+Still, filling in defaults is a thing that is useful. :mod:`jsonschema`
+allows you to :doc:`define your own validator classes and callables
+<creating>`, so you can easily create a :class:`IValidator` that does do
+default setting. Here's some code to get you started:
 
     .. code-block:: python
 
@@ -96,8 +96,10 @@ The following are *not* considered public API and may change without notice:
 
     * the order in which validation errors are returned or raised
 
+    * the ``compat.py`` module, which is for internal compatibility use
+
     * anything marked private
 
-With the exception of the last of those, flippant changes are avoided, but
+With the exception of the last two of those, flippant changes are avoided, but
 changes can and will be made if there is improvement to be had. Feel free to
 open an issue ticket if there is a specific issue or question worth raising.

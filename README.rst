@@ -1,3 +1,10 @@
+.. image:: https://img.shields.io/pypi/v/jsonschema.svg
+    :target: https://pypi.python.org/pypi/jsonschema
+.. image:: https://travis-ci.org/Julian/jsonschema.svg?branch=master
+    :target: https://travis-ci.org/Julian/jsonschema
+.. image:: https://img.shields.io/pypi/l/jsonschema.svg
+    :target: https://pypi.python.org/pypi/jsonschema
+
 ==========
 jsonschema
 ==========
@@ -49,25 +56,18 @@ Features
 Release Notes
 -------------
 
-* A simple CLI was added for validation
-* Validation errors now keep full absolute paths and absolute schema paths in
-  their ``absolute_path`` and ``absolute_schema_path`` attributes. The ``path``
-  and ``schema_path`` attributes are deprecated in favor of ``relative_path``
-  and ``relative_schema_path``\ .
+Version 2.5.0 is mainly a performance release. The interface for `RefResolver`
+was extended to add methods that improve performance on CPython.
 
-*Note:* Support for Python 3.2 was dropped in this release, and installation
-now uses setuptools.
+Support for custom `RefResolver` objects with the legacy interface should *not*
+be affected. If you notice something amiss please file an issue ticket.
 
 
 Running the Test Suite
 ----------------------
 
-``jsonschema`` uses the wonderful `Tox <http://tox.readthedocs.org>`_ for its
-test suite. (It really is wonderful, if for some reason you haven't heard of
-it, you really should use it for your projects).
-
-Assuming you have ``tox`` installed (perhaps via ``pip install tox`` or your
-package manager), just run ``tox`` in the directory of your source checkout to
+If you have ``tox`` installed (perhaps via ``pip install tox`` or your
+package manager), running``tox`` in the directory of your source checkout will
 run ``jsonschema``'s test suite on all of the versions of Python ``jsonschema``
 supports. Note that you'll need to have all of those versions installed in
 order to run the tests on each of them, otherwise ``tox`` will skip (and fail)
