@@ -1,3 +1,9 @@
+python-jsonschema (2.5.1-2) experimental; urgency=medium
+
+  * Fixed http{s,}_proxy during dh_auto_clean to avoid PyPi downloads.
+
+ -- Thomas Goirand <zigo@debian.org>  Thu, 17 Sep 2015 09:25:38 +0200
+
 python-jsonschema (2.5.1-1) experimental; urgency=medium
 
   * New upstream release.
