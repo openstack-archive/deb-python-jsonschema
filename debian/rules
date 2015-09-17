@@ -28,6 +28,6 @@ override_dh_auto_install:
 
 override_dh_auto_clean:
 	echo $$PACKAGE_VERSION  | sed s/\\./-/g >version.txt
-	http_proxy=127.0.0.1:9 https_proxy=127.0.0.1:9 dh_auto_clean
+	#http_proxy=127.0.0.1:9 https_proxy=127.0.0.1:9 dh_auto_clean
 	rm -rf build version.txt jsonschema/_version.py
 	rm -rf __pycache__
