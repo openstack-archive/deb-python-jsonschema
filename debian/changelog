@@ -1,5 +1,6 @@
 python-jsonschema (2.5.1-2) experimental; urgency=medium
 
+  * Fixed pacakge version parsing to be compatible with Ubuntu Trusty.
   * Fixed http{s,}_proxy during dh_auto_clean to avoid PyPi downloads.
   * Added python{3,}-vcversioner as build-depends-indep.
 
