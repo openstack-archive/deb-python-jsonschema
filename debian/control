@@ -11,15 +11,14 @@ Build-Depends: autopkgtest,
                python-vcversioner,
                python3-all,
                python3-setuptools,
+               python3-vcversioner,
 Build-Depends-Indep: python-functools32,
                      python-mock,
                      python-nose,
                      python-pytest,
-                     python-vcversioner,
                      python3-mock,
                      python3-nose,
                      python3-pytest,
-                     python3-vcversioner,
 Standards-Version: 3.9.6
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=openstack/python-jsonschema.git
 Vcs-Git: git://anonscm.debian.org/openstack/python-jsonschema.git
