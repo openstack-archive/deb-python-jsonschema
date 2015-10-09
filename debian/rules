@@ -35,6 +35,8 @@ override_dh_auto_install:
 			--root $(CURDIR)/debian/python3-jsonschema; \
 	done
 	rm -f $(CURDIR)/debian/python*/usr/lib/python*/dist-packages/*.pth
+	mv $(CURDIR)/debian/python-jsonschema/usr/bin/jsonschema $(CURDIR)/debian/python-jsonschema/usr/bin/python2-jsonschema
+	mv $(CURDIR)/debian/python3-jsonschema/usr/bin/jsonschema $(CURDIR)/debian/python3-jsonschema/usr/bin/python3-jsonschema
 
 override_dh_auto_clean:
 	echo $$PACKAGE_VERSION  | sed s/\\./-/g >version.txt
