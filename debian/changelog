@@ -1,3 +1,9 @@
+python-jsonschema (2.5.1-5) UNRELEASED; urgency=medium
+
+  * Fixed VCS URLs (https).
+
+ -- Ondřej Nový <novy@ondrej.org>  Mon, 29 Feb 2016 11:35:07 +0100
+
 python-jsonschema (2.5.1-4) unstable; urgency=medium
 
   * override_dh_python3 to fix Py3 shebang.
