@@ -2,6 +2,7 @@ python-jsonschema (2.5.1-5) UNRELEASED; urgency=medium
 
   * Fixed VCS URLs (https).
   * Mention Draft 4 support in package description (Closes: #816711)
+  * Removed d/CHANGELOG, upstream provides own changelog now
 
  -- Ondřej Nový <novy@ondrej.org>  Mon, 29 Feb 2016 11:35:07 +0100
 
