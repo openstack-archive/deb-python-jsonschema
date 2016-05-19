@@ -8,7 +8,7 @@ export PACKAGE_VERSION=$(shell dpkg-parsechangelog | grep Version: | cut -d' ' -
 PYTHON3:=$(shell py3versions -r)
 py3sdo=set -ex; $(foreach py, $(PYTHON3), $(py) $(1);)
 
-UPSTREAM_GIT = git://github.com/Julian/jsonschema.git
+UPSTREAM_GIT := https://github.com/Julian/jsonschema.git
 -include /usr/share/openstack-pkg-tools/pkgos.make
 
 %:

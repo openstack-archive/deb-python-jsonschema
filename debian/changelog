@@ -4,6 +4,7 @@ python-jsonschema (2.5.1-5) UNRELEASED; urgency=medium
   * Mention Draft 4 support in package description (Closes: #816711)
   * Removed d/CHANGELOG, upstream provides own changelog now
   * Bumped Standards-Version to 3.9.8, no changes needed
+  * d/rules: Changed UPSTREAM_GIT protocol to https
 
  -- Ondřej Nový <novy@ondrej.org>  Mon, 29 Feb 2016 11:35:07 +0100
 
