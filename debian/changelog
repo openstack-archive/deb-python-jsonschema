@@ -1,12 +1,13 @@
-python-jsonschema (2.5.1-5) UNRELEASED; urgency=medium
+python-jsonschema (2.5.1-5) unstable; urgency=medium
 
+  * Team upload.
   * Fixed VCS URLs (https).
   * Mention Draft 4 support in package description (Closes: #816711)
   * Removed d/CHANGELOG, upstream provides own changelog now
   * Bumped Standards-Version to 3.9.8, no changes needed
   * d/rules: Changed UPSTREAM_GIT protocol to https
 
- -- Ondřej Nový <novy@ondrej.org>  Mon, 29 Feb 2016 11:35:07 +0100
+ -- Ondřej Nový <novy@ondrej.org>  Thu, 19 May 2016 22:02:32 +0200
 
 python-jsonschema (2.5.1-4) unstable; urgency=medium
 
