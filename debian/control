@@ -20,8 +20,8 @@ Build-Depends-Indep: python-functools32,
                      python3-nose,
                      python3-pytest,
 Standards-Version: 3.9.8
-Vcs-Git: https://anonscm.debian.org/git/openstack/python-jsonschema.git
-Vcs-Browser: https://anonscm.debian.org/cgit/openstack/python-jsonschema.git/
+Vcs-Git: https://git.openstack.org/openstack/deb-python-jsonschema -b debian/newton
+Vcs-Browser: https://git.openstack.org/cgit/openstack/deb-python-jsonschema?h=debian%2Fnewton
 Homepage: https://github.com/Julian/jsonschema
 
 Package: python-jsonschema
