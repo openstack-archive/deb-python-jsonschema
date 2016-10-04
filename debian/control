@@ -28,6 +28,7 @@ Package: python-jsonschema
 Architecture: all
 Depends: python-functools32,
          python-mock,
+         python3-pkg-resources,
          ${misc:Depends},
          ${python:Depends},
 Description: An(other) implementation of JSON Schema (Draft 3 and 4) - Python 2.7
@@ -42,7 +43,7 @@ Description: An(other) implementation of JSON Schema (Draft 3 and 4) - Python 2.
 
 Package: python3-jsonschema
 Architecture: all
-Depends: python3 (>= 3.2.3),
+Depends: python3-pkg-resources,
          ${misc:Depends},
          ${python3:Depends},
 Description: An(other) implementation of JSON Schema (Draft 3 and 4) - Python 3.x
