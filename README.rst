@@ -1,3 +1,12 @@
+========================
+Team and repository tags
+========================
+
+.. image:: http://governance.openstack.org/badges/deb-python-jsonschema.svg
+    :target: http://governance.openstack.org/reference/tags/index.html
+
+.. Change things from this point on
+
 .. image:: https://img.shields.io/pypi/v/jsonschema.svg
     :target: https://pypi.python.org/pypi/jsonschema
 .. image:: https://travis-ci.org/Julian/jsonschema.svg?branch=master
